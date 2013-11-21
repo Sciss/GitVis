@@ -6,14 +6,17 @@ import java.util.Date
 import scala.util.Try
 import scalax.chart
 import collection.immutable.{IndexedSeq => Vec}
-import collection.breakOut
 import scala.swing.Swing
 import de.sciss.numbers
+import language.implicitConversions
+import org.jfree.data.time.Day
+import scala.Some
+import org.jfree.chart.axis.LogarithmicAxis
 
 object Test extends App {
   val devel = userHome / "Documents" / "devel"
   val cmd   = """git log --shortstat --pretty=%at""".split(' ')
-  val repo  = devel / "ScalaCollider"
+  val repo  = devel / "ScalaOSC" // LucreData" // ScalaCollider"
 
   import sys.process._
 
@@ -56,11 +59,31 @@ object Test extends App {
   import chart._
   import Charting._
   import numbers.Implicits._
-  val coll  = lines.map(l => l.date.getTime -> (l.insertions + l.deletions).log).toXYSeriesCollection()
+
+  // implicit def dateToTime(d: Date): java.lang.Long = d.getTime
+
+  // val xy    = new TimeSeries("changes")
+  // xy.add(new XYDataItem())
+
+  // implicit def dateToTime(d: Date): RegularTimePeriod = new Day(d)
+
+  val data = (Vec.empty[(Day, Int)] /: lines) { (res, ln) =>
+    val count = ln.insertions + ln.deletions
+    val day   = new Day(ln.date)
+    res match {
+      case init :+ ((lastDay, lastCount)) if lastDay == day => init :+ (lastDay, lastCount + count)
+      case _ => res :+ (day, count)
+    }
+  }
+
+  val coll = data.toTimeSeriesCollection()
 
   Swing.onEDT {
-    val chart = ChartFactories.XYLineChart(coll)
+    val chart = ChartFactories.XYBarChart(coll, legend = false)
     // val panel = chart.toPanel
-    chart.show()
+    val plot = chart.plot
+    plot.setRangeAxis(new LogarithmicAxis("LOC changed"))
+    chart.printableLook()
+    chart.show(title = s"${repo.name}")
   }
 }
