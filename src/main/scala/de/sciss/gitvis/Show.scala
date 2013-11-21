@@ -6,11 +6,13 @@ import Charting._
 
 object Show {
   def apply(dataSeq: (String, Vec[(Period, Int)])*): Unit = {
-    val x     = dataSeq.flatMap(_._2)
-    val xMin  = x.map(_._1.getStart).min
-    val xMax  = x.map(_._1.getEnd  ).max
+    val dt    = dataSeq.flatMap(_._2)
+    val xMin  = dt.view.map(_._1.getStart).min
+    val xMax  = dt.view.map(_._1.getEnd  ).max
+    val yMin  = dt.view.map(_._2).min
+    val yMax  = dt.view.map(_._2).max
 
-    dataSeq.foreach { case (name, data) =>
+    dataSeq.zipWithIndex.foreach { case ((name, data), idx) =>
       val coll = data.toTimeSeriesCollection()
 
       val chart = ChartFactories.XYBarChart(coll, legend = false)
@@ -19,9 +21,20 @@ object Show {
       val xAxis = plot.getDomainAxis.asInstanceOf[DateAxis]
       xAxis.setMinimumDate(xMin)
       xAxis.setMaximumDate(xMax)
-      plot.setRangeAxis(new LogarithmicAxis("LOC changed"))
+      val yAxis = new LogarithmicAxis("") // ("LOC changed")
+      plot.setRangeAxis(yAxis)
+      yAxis.setLowerBound(yMin)
+      yAxis.setUpperBound(yMax)
       chart.printableLook()
-      chart.show(title = s"$name")
+
+      val isLast = idx == dataSeq.size - 1
+
+      if (!isLast) {
+        xAxis.setAxisLineVisible(false)
+        xAxis.setTickLabelsVisible(false)
+      }
+
+      chart.show2(w = 1600, h = 250 + (if (isLast) 16 else 0), title = name)
     }
   }
 }
