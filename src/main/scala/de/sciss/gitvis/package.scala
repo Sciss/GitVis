@@ -4,9 +4,20 @@ import scalax.chart.Chart
 import org.jfree.chart.plot.{CategoryPlot, XYPlot, Plot}
 import java.awt.{Font, Color}
 import org.jfree.chart.renderer.xy.{StandardXYBarPainter, XYBarRenderer}
+import de.sciss.file._
+import org.jfree.data.time.Week
+import java.util.Date
 
 package object gitvis {
   private lazy val defaultFontFace = "Helvetica"  // "Arial"
+
+  type Period = Week
+  def Period(d: Date): Period = new Week(d)
+
+  type Vec[+A]  = collection.immutable.IndexedSeq[A]
+  val Vec       = collection.immutable.IndexedSeq
+
+  val devel = userHome / "Documents" / "devel"
 
   implicit class ScissRichChart[P <: Plot](chart: Chart[P]) {
     /** Adjust the chart with a black-on-white color scheme and
