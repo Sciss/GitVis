@@ -19,7 +19,7 @@ object Main extends App {
 
   Swing.onEDT {
     println("Plotting...")
-    Show(data: _*)
+    Show()(data: _*)
     println("Done.")
   }
 }

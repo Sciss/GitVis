@@ -5,7 +5,8 @@ import scalax.chart._
 import Charting._
 
 object Show {
-  def apply(dataSeq: (String, Vec[(Period, Int)])*): Unit = {
+  def apply(width: Int = 1600, height: Int = 250, nameOnRangeAxis: Boolean = true)
+           (dataSeq: (String, Vec[(Period, Int)])*): Unit = {
     val dt    = dataSeq.flatMap(_._2)
     val xMin  = dt.view.map(_._1.getStart).min
     val xMax  = dt.view.map(_._1.getEnd  ).max
@@ -21,7 +22,7 @@ object Show {
       val xAxis = plot.getDomainAxis.asInstanceOf[DateAxis]
       xAxis.setMinimumDate(xMin)
       xAxis.setMaximumDate(xMax)
-      val yAxis = new LogarithmicAxis("") // ("LOC changed")
+      val yAxis = new LogarithmicAxis(if (nameOnRangeAxis) name else "") // ("LOC changed")
       plot.setRangeAxis(yAxis)
       yAxis.setLowerBound(yMin)
       yAxis.setUpperBound(yMax)
@@ -34,7 +35,7 @@ object Show {
         xAxis.setTickLabelsVisible(false)
       }
 
-      chart.show2(w = 1600, h = 250 + (if (isLast) 16 else 0), title = name)
+      chart.show2(w = width, h = height + (if (isLast) 16 else 0), title = name)
     }
   }
 }
