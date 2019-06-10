@@ -1,15 +1,17 @@
 package de.sciss
 
-import scalax.chart.Chart
-import org.jfree.chart.plot.{CategoryPlot, XYPlot, Plot}
-import java.awt.{Font, Color}
-import org.jfree.chart.renderer.xy.{StandardXYBarPainter, XYBarRenderer}
-import de.sciss.file._
-import org.jfree.data.time.Week
+import java.awt.{Color, Font}
 import java.util.Date
-import scala.swing.{Rectangle, Frame, Swing}
-import scala.swing.event.WindowClosing
+
+import de.sciss.chart.Chart
+import de.sciss.file._
 import de.sciss.pdflitz.Generate.QuickDraw
+import org.jfree.chart.plot.{CategoryPlot, Plot, XYPlot}
+import org.jfree.chart.renderer.xy.{StandardXYBarPainter, XYBarRenderer}
+import org.jfree.data.time.Week
+
+import scala.swing.event.WindowClosing
+import scala.swing.{Frame, Rectangle, Swing}
 
 package object gitvis {
   private lazy val defaultFontFace = "Helvetica"  // "Arial"
@@ -17,12 +19,10 @@ package object gitvis {
   type Period = Week
   def Period(d: Date): Period = new Week(d)
 
-  type Vec[+A]  = collection.immutable.IndexedSeq[A]
-  val Vec       = collection.immutable.IndexedSeq
+  type Vec[+A]                                    = collection.immutable.IndexedSeq[A]
+  val Vec: collection.immutable.IndexedSeq.type   = collection.immutable.IndexedSeq
 
-  val devel = userHome / "Documents" / "devel"
-
-  implicit class ScissRichChart[P <: Plot](chart: Chart[P]) {
+  implicit class ScissRichChart[P <: Plot](chart: Chart { type Plot = P }) {
     /** Adjust the chart with a black-on-white color scheme and
       * fonts that come out properly in PDF export.
       */
@@ -67,7 +67,8 @@ package object gitvis {
     def show2(w: Int, h: Int, title: String = ""): Unit = {
       val title0 = title
       import Swing._
-      val p = chart.toPanel
+      val p = chart.toComponent(useBuffer = false)
+//      val p = chart.toPanel
       p.peer.asInstanceOf[org.jfree.chart.ChartPanel].setMouseWheelEnabled(true) // SO #19281374
       val f = new Frame {
         contents = p

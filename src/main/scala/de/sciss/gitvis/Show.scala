@@ -1,8 +1,8 @@
 package de.sciss.gitvis
 
+import de.sciss.chart.module.ChartFactories
+import de.sciss.chart.module.Charting._
 import org.jfree.chart.axis.{DateAxis, LogarithmicAxis}
-import scalax.chart._
-import Charting._
 
 object Show {
   def apply(width: Int = 1600, height: Int = 250, nameOnRangeAxis: Boolean = true)
@@ -16,7 +16,8 @@ object Show {
     dataSeq.zipWithIndex.foreach { case ((name, data), idx) =>
       val coll = data.toTimeSeriesCollection()
 
-      val chart = ChartFactories.XYBarChart(coll, legend = false)
+      val chart = ChartFactories.XYBarChart(coll /*, legend = false*/)
+      chart.peer.removeLegend()
       // val panel = chart.toPanel
       val plot = chart.plot
       val xAxis = plot.getDomainAxis.asInstanceOf[DateAxis]

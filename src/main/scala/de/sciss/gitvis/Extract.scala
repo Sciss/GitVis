@@ -1,15 +1,14 @@
 package de.sciss.gitvis
 
-import de.sciss.file._
 import java.lang.{ProcessBuilder => JProcessBuilder}
 import java.util.Date
+
+import de.sciss.file._
+
 import scala.util.Try
-import scalax.chart
-import de.sciss.numbers
-import language.implicitConversions
 
 object Extract {
-  val cmd   = """git log --shortstat --pretty=%at""".split(' ')
+  val cmd: Array[String] = """git log --shortstat --pretty=%at""".split(' ')
   // val repo  = devel / "SoundProcesses" // ScalaCollider" // LucreData" // ScalaCollider"
 
   import sys.process._
@@ -53,10 +52,6 @@ object Extract {
 
     // lines.foreach(println)
 
-    import chart._
-    import Charting._
-    import numbers.Implicits._
-
     // type Period = Day
     // def Period(d: Date): Period = new Day(d)
 
@@ -64,8 +59,8 @@ object Extract {
       val count  = ln.insertions + ln.deletions
       val period = Period(ln.date)
       res match {
-        case init :+ ((lastPeriod, lastCount)) if lastPeriod == period => init :+ (lastPeriod, lastCount + count)
-        case _ => res :+ (period, count)
+        case init :+ ((lastPeriod, lastCount)) if lastPeriod == period => init :+ ((lastPeriod, lastCount + count))
+        case _ => res :+ ((period, count))
       }
     }
 
